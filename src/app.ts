@@ -42,7 +42,8 @@ Server.listen(3000, () => {
 function Socket_Connection_Handler(Connection: Socket.Socket) {
 	//
 	//Get the Clients Address
-	const Client_Address = Connection.handshake.address;
+	const Client_Address =
+		Connection.handshake.address !== "::1" ? Connection.handshake.address : "localhost";
 
 	//Add the Connection to the Connections List
 	Connections_List.set(Client_Address, Connection);
@@ -87,8 +88,8 @@ async function Main() {
 	await Voice_Transceiver.Set_Speaker("Logitech Headset");
 
 	//Start Transmitting Audio
-	await Voice_Transceiver.Transmit_Audio("::1", Connections_List);
+	await Voice_Transceiver.Transmit_Audio("localhost", Connections_List);
 
 	//Start Receiving Audio
-	await Voice_Transceiver.Receive_Audio("::1");
+	await Voice_Transceiver.Receive_Audio("localhost");
 }
