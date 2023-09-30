@@ -145,7 +145,6 @@ export class Nytely_Voice_Transceiver {
 		//Listen for Incoming Audio
 		Requested_Client.on("Audio_Data", data => {
 			//
-
 			//Check if the Speaker is not Valid
 			if (!this.#Speaker) return;
 
