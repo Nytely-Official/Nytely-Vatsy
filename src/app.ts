@@ -45,8 +45,14 @@ function Socket_Connection_Handler(Connection: Socket.Socket) {
 	const Client_Address =
 		Connection.handshake.address !== "::1" ? Connection.handshake.address : "localhost";
 
+	Client_Address.replace(/.*\:/g, "");
+
+	//Filter the Client's Address
+	const Filtered_Client_Address = Client_Address.replace(/.*\:/g, "");
+	console.log(Filtered_Client_Address);
+
 	//Add the Connection to the Connections List
-	Connections_List.set(Client_Address, Connection);
+	Connections_List.set(Filtered_Client_Address, Connection);
 
 	//Listen for Socket Disconnect Event
 	Connection.on("disconnect", () => Socket_Disconnect_Handler(Connection));
@@ -90,6 +96,9 @@ async function Main() {
 	//Start Transmitting Audio
 	await Voice_Transceiver.Transmit_Audio("localhost", Connections_List);
 
-	//Start Receiving Audio
-	await Voice_Transceiver.Receive_Audio("localhost");
+	//Start Receiving Audio (If you are a user)
+	await Voice_Transceiver.Receive_Audio_As_User("localhost");
+
+	//Start Receiving Audio (If you are a server)
+	//await Voice_Transceiver.Receive_Audio_As_Server();
 }

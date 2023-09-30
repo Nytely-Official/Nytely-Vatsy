@@ -13,6 +13,7 @@ export class Nytely_Voice_Transceiver {
 	#Audio_Device_List: Nytely_Audio_Device_List;
 	#Transmitting_Audio: boolean;
 	#Receiving_Audio: boolean;
+	#Connected_Socket: Socket | undefined;
 
 	//Setup the Constructor
 	constructor() {
@@ -109,21 +110,27 @@ export class Nytely_Voice_Transceiver {
 		//Listen for Microphone Audio Data
 		this.#Microphone.on("data", data => {
 			//
-			//Get the Connection Socket for the Specified Address
-			const Requested_IP_Socket = Connections_List.get(Requested_IP);
+			//Check if the Connected Socket is Not Valid or Connected and Update it
+			if (!this.#Connected_Socket || !this.#Connected_Socket.connected) {
+				//
+				//Get the Connection Socket for the Specified Address
+				this.#Connected_Socket = Connections_List.get(Requested_IP) || undefined;
+			}
+
 			console.log(Connections_List.size);
-			//Check if the Requested IP Socket does not Exist
-			if (!Requested_IP_Socket) {
-				return console.log(chalk.yellow(`${Requested_IP} Is currently Offline`));
+
+			//Check if the Requested Connected Socket does not Exist
+			if (!this.#Connected_Socket) {
+				return; //console.log(chalk.yellow(`${Requested_IP} Is currently Offline`));
 			}
 
 			//Send the Data to the Specified Socket
-			Requested_IP_Socket.emit("Audio_Data", data);
+			this.#Connected_Socket.emit("Audio_Data", data);
 		});
 	}
 
-	//Starts Receiving Audio from the requested IP
-	async Receive_Audio(Requested_IP: string) {
+	//Starts Receiving Audio from the requested IP as the User
+	async Receive_Audio_As_User(Requested_IP: string) {
 		//
 		//Check if the Audio is currently being Received
 		if (this.#Receiving_Audio) return console.log(chalk.yellow(`Already Receiving Audio`));
@@ -148,6 +155,46 @@ export class Nytely_Voice_Transceiver {
 			//Check if the Speaker is not Valid
 			if (!this.#Speaker) return;
 
+			this.#Speaker.write(data);
+		});
+	}
+
+	//Starts Receiving Audio from the As the Starting Server
+	async Receive_Audio_As_Server() {
+		//
+		//Check if the Audio is currently being Received
+		if (this.#Receiving_Audio) return console.log(chalk.yellow(`Already Receiving Audio`));
+
+		//Check if the Speaker is not Valid
+		if (!this.#Speaker) return console.log(chalk.yellow(`Speaker not Set`));
+
+		//Show the Audio as Currently Receiving
+		this.#Receiving_Audio = true;
+
+		//Check if the Requesting Socket is not Valid and retry after 5 seconds
+		if (!this.#Connected_Socket) {
+			//
+			//Mark the Audio as no Long Receiving
+			this.#Receiving_Audio = false;
+
+			//Run the Audio Server again after 5 seconds
+			setTimeout(() => this.Receive_Audio_As_Server());
+
+			//End the Script
+			return;
+		}
+
+		//Start the Speaker
+		this.#Speaker.start();
+
+		//Listen for Incoming Audio
+		this.#Connected_Socket.on("Audio_Data", data => {
+			//
+			console.log(data);
+			//Check if the Speaker is not Valid
+			if (!this.#Speaker) return;
+
+			//Write to the Speaker
 			this.#Speaker.write(data);
 		});
 	}
