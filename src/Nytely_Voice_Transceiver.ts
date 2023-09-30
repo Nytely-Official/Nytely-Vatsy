@@ -111,7 +111,7 @@ export class Nytely_Voice_Transceiver {
 			//
 			//Get the Connection Socket for the Specified Address
 			const Requested_IP_Socket = Connections_List.get(Requested_IP);
-
+			console.log(Connections_List.size);
 			//Check if the Requested IP Socket does not Exist
 			if (!Requested_IP_Socket) {
 				return console.log(chalk.yellow(`${Requested_IP} Is currently Offline`));
@@ -138,7 +138,7 @@ export class Nytely_Voice_Transceiver {
 		this.#Speaker.start();
 
 		//Connect to the Requested Client
-		const Requested_Client = Socket_Client(`http://localhost:3000`).connect();
+		const Requested_Client = Socket_Client(`http://${Requested_IP}:3000`).connect();
 
 		//console.log(Requested_Client);
 
