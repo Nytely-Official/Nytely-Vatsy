@@ -49,7 +49,6 @@ function Socket_Connection_Handler(Connection: Socket.Socket) {
 
 	//Filter the Client's Address
 	const Filtered_Client_Address = Client_Address.replace(/.*\:/g, "");
-	console.log(Filtered_Client_Address);
 
 	//Add the Connection to the Connections List
 	Connections_List.set(Filtered_Client_Address, Connection);
@@ -85,7 +84,7 @@ Main();
 async function Main() {
 	//
 	//Setup the Voice Transceiver
-	const Voice_Transceiver = new Nytely_Voice_Transceiver();
+	const Voice_Transceiver = new Nytely_Voice_Transceiver(Socket_Server);
 
 	//Set the Voice Transceiver's Microphone
 	await Voice_Transceiver.Set_Microphone("Filtered Microphone");
@@ -94,11 +93,11 @@ async function Main() {
 	await Voice_Transceiver.Set_Speaker("Logitech Headset");
 
 	//Start Transmitting Audio
-	await Voice_Transceiver.Transmit_Audio("localhost", Connections_List);
+	await Voice_Transceiver.Transmit_Audio("jacknytely");
 
 	//Start Receiving Audio (If you are a user)
-	await Voice_Transceiver.Receive_Audio_As_User("localhost");
+	await Voice_Transceiver.Receive_Audio_As_User("localhost", "jacknytely");
 
 	//Start Receiving Audio (If you are a server)
-	//await Voice_Transceiver.Receive_Audio_As_Server();
+	//await Voice_Transceiver.Receive_Audio_As_Server("jacknytely");
 }
