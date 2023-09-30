@@ -6,6 +6,15 @@ import HTTP from "http";
 //Internal Imports
 import { Nytely_Voice_Transceiver } from "./Nytely_Voice_Transceiver";
 
+//Setup natpmp (Port Mapper)
+const natpmp = require("nat-pmp");
+
+//Setup the Port Mapper Client
+const Port_Mapper_Client = natpmp.connect("192.168.1.1");
+
+//Map the Required Ports
+Port_Mapper_Client.portMapping({ private: 3241, public: 3241, ttl: 60 });
+
 //Setup the Connections List
 const Connections_List: Map<string, Socket.Socket> = new Map();
 
@@ -23,10 +32,10 @@ const Socket_Server = new Socket.Server(Server);
 Socket_Server.on("connection", Socket_Connection_Handler);
 
 //Start the Express Server.
-Server.listen(3000, () => {
+Server.listen(3241, () => {
 	//
 	//Log Successful Server Start
-	console.log(`Started Web Server on 3000`);
+	console.log(`Started Web Server on 3241`);
 });
 
 //Setup the Socket Connection Handler
